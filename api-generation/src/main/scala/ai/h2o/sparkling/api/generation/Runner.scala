@@ -24,6 +24,7 @@ import ai.h2o.automl.AutoMLBuildSpec._
 import ai.h2o.sparkling.api.generation.common._
 import ai.h2o.sparkling.utils.ScalaUtils._
 import hex.deeplearning.DeepLearningModel.DeepLearningParameters
+import hex.gam.GAMModel.GAMParameters
 import hex.schemas._
 import hex.tree.gbm.GBMModel.GBMParameters
 import hex.glm.GLMModel.GLMParameters
@@ -69,6 +70,7 @@ object Runner {
 
     val xgboostFields = Seq(monotonicity, calibrationDataFrame, ignoredCols)
     val glmFields = Seq(randomCols, ignoredCols, plugValues, betaConstraints)
+    val gamFields = Seq(ignoredCols, plugValues, betaConstraints)
     val gbmFields = Seq(monotonicity, calibrationDataFrame, ignoredCols)
     val kmeansFields = Seq(userPoints, ignoredCols)
 
@@ -88,7 +90,9 @@ object Runner {
       ("H2OGLMParams", classOf[GLMV3.GLMParametersV3], classOf[GLMParameters], glmFields),
       ("H2ODeepLearningParams", classOf[DeepLearningParametersV3], classOf[DeepLearningParameters], deepLearningFields),
       ("H2OKMeansParams", classOf[KMeansV3.KMeansParametersV3], classOf[KMeansParameters], kmeansFields),
-      ("H2OGLRMParams", classOf[GLRMV3.GLRMParametersV3], classOf[GLRMParameters], Seq(userX, userY, lossByColNames)))
+      ("H2OGLRMParams", classOf[GLRMV3.GLRMParametersV3], classOf[GLRMParameters], Seq(userX, userY, lossByColNames)),
+      ("H2OGAMParams", classOf[GAMV3.GAMParametersV3], classOf[GAMParameters], gamFields),
+    )
 
     for ((entityName, h2oSchemaClass: Class[_], h2oParameterClass: Class[_], explicitFields) <- algorithmParameters)
       yield ParameterSubstitutionContext(
@@ -116,7 +120,8 @@ object Runner {
       ("H2OGLM", classOf[GLMParameters], "H2OSupervisedAlgorithm", Seq.empty),
       ("H2ODeepLearning", classOf[DeepLearningParameters], "H2OSupervisedAlgorithm", Seq.empty),
       ("H2OKMeans", classOf[KMeansParameters], "H2OUnsupervisedAlgorithm", Seq("H2OKMeansExtras")),
-      ("H2OGLRM", classOf[GLRMParameters], "H2OUnsupervisedAlgorithm", Seq.empty))
+      ("H2OGLRM", classOf[GLRMParameters], "H2OUnsupervisedAlgorithm", Seq.empty),
+      ("H2OGAM", classOf[GAMParameters], "H2OSupervisedAlgorithm", Seq.empty))
 
     for ((entityName, h2oParametersClass: Class[_], algorithmType, extraParents) <- algorithms)
       yield AlgorithmSubstitutionContext(
@@ -134,6 +139,7 @@ object Runner {
       ("H2OGBM", Seq("distribution")),
       ("H2ODRF", Seq("distribution")),
       ("H2OGLM", Seq("distribution", "family")),
+      ("H2OGAM", Seq("distribution", "family")),
       ("H2ODeepLearning", Seq("distribution")))
 
     for ((parameterEntityName, parametersToCheck) <- algorithms)
