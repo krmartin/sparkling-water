@@ -18,15 +18,8 @@
 package ai.h2o.sparkling.doc.generation
 
 import java.io.{File, PrintWriter}
-import java.net.URLDecoder
-import java.util.jar.JarFile
 
-import ai.h2o.sparkling.backend.SharedBackendConf
-import ai.h2o.sparkling.backend.external.ExternalBackendConf
-import ai.h2o.sparkling.backend.internal.InternalBackendConf
 import ai.h2o.sparkling.utils.ScalaUtils.withResource
-
-import scala.collection.mutable.ArrayBuffer
 
 object ConfigurationRunner {
   private def writeResultToFile(content: String, fileName: String, destinationDir: String) = {

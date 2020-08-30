@@ -7,11 +7,14 @@ Machine Learning
    :maxdepth: 2
 
    sw_automl
+   sw_gam
    sw_drf
    sw_grid
    sw_kmeans
    sw_xgboost
    sw_glrm
+   sw_pca
+   sw_isolation_forest
 
 **Transformers**
 

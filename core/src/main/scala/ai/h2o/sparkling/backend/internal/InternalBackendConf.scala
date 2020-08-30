@@ -31,7 +31,7 @@ import org.apache.spark.expose.Utils
 /**
   * Internal backend configuration
   */
-trait InternalBackendConf extends SharedBackendConf {
+trait InternalBackendConf extends SharedBackendConf with InternalBackendConfExtensions {
   self: H2OConf =>
 
   import InternalBackendConf._
@@ -83,20 +83,6 @@ trait InternalBackendConf extends SharedBackendConf {
   }
 
   def setSpreadRddRetriesTimeout(timeout: Int): H2OConf = set(PROP_SPREADRDD_RETRIES_TIMEOUT._1, timeout.toString)
-
-  def internalConfString: String =
-    s"""Sparkling Water configuration:
-       |  backend cluster mode : $backendClusterMode
-       |  workers              : $numH2OWorkers
-       |  cloudName            : ${cloudName.getOrElse(
-         "Not set yet, it will be set automatically before starting H2OContext.")}
-       |  base port            : $basePort
-       |  cloudTimeout         : $cloudTimeout
-       |  log level            : $logLevel
-       |  nthreads             : $nthreads
-       |  drddMulFactor        : $drddMulFactor""".stripMargin
-
-  private[backend] override def getFileProperties: Seq[(String, _, _, _)] = super.getFileProperties :+ PROP_HDFS_CONF
 }
 
 object InternalBackendConf {
@@ -113,7 +99,7 @@ object InternalBackendConf {
     10,
     "setDrddMulFactor(Integer)",
     """Multiplication factor for dummy RDD  generation. Size of dummy RDD is
-      |``spark.ext.h2o.cluster.size`` \* ``spark.ext.h2o.dummy.rdd.mul.factor``.""".stripMargin)
+      |``spark.ext.h2o.cluster.size`` multiplied by this option.""".stripMargin)
 
   val PROP_SPREADRDD_RETRIES: IntOption = (
     "spark.ext.h2o.spreadrdd.retries",
@@ -139,7 +125,7 @@ object InternalBackendConf {
     None,
     "setHdfsConf(String)",
     """Either a string with the Path to a file with Hadoop HDFS configuration or the
-      |org.apache.hadoop.conf.Configuration object. Useful for HDFS credentials
+      |hadoop.conf.Configuration object in the org.apache package. Useful for HDFS credentials
       |settings and other HDFS-related configurations. Default value None means
       |use `sc.hadoopConfig`.""".stripMargin)
 

@@ -99,13 +99,7 @@ class H2OMOJOModel(override val uid: String) extends H2OMOJOModelBase[H2OMOJOMod
   override def transform(dataset: Dataset[_]): DataFrame = {
     val baseDf = applyPredictionUdf(dataset, _ => getPredictionUDF())
 
-    val withPredictionDf = baseDf.withColumn(getPredictionCol(), extractPredictionColContent())
-
-    if (getWithDetailedPredictionCol()) {
-      withPredictionDf
-    } else {
-      withPredictionDf.drop(getDetailedPredictionCol())
-    }
+    baseDf.withColumn(getPredictionCol(), extractPredictionColContent())
   }
 
   protected override def applyPredictionUdfToFlatDataFrame(
@@ -241,7 +235,10 @@ object H2OMOJOModel extends H2OMOJOReadable[H2OMOJOModel] with H2OMOJOLoader[H2O
   def createFromMojo(mojo: File, uid: String, settings: H2OMOJOSettings): H2OMOJOModel = {
     val mojoModel = Utils.getMojoModel(mojo)
     val model = mojoModel match {
-      case _: SharedTreeMojoModel | _: XGBoostMojoModel => new H2OTreeBasedSupervisedMOJOModel(uid)
+      case (_: SharedTreeMojoModel | _: XGBoostMojoModel) if mojoModel.isSupervised =>
+        new H2OTreeBasedSupervisedMOJOModel(uid)
+      case m: SharedTreeMojoModel if !m.isSupervised =>
+        new H2OTreeBasedUnsupervisedMOJOModel(uid)
       case m if m.isSupervised => new H2OSupervisedMOJOModel(uid)
       case _ => new H2OUnsupervisedMOJOModel(uid)
     }
@@ -266,7 +263,6 @@ object H2OMOJOModel extends H2OMOJOReadable[H2OMOJOModel] with H2OMOJOLoader[H2O
     model.set(model.trainingParams -> trainingParams)
     model.set(model.modelCategory -> modelCategory.toString)
     model.set(model.detailedPredictionCol -> settings.detailedPredictionCol)
-    model.set(model.withDetailedPredictionCol -> settings.withDetailedPredictionCol)
     model.set(model.withContributions -> settings.withContributions)
     model.set(model.withLeafNodeAssignments -> settings.withLeafNodeAssignments)
     model.set(model.withStageResults -> settings.withStageResults)
@@ -340,20 +336,16 @@ object H2OMOJOCache extends H2OMOJOBaseCache[EasyPredictModelWrapper, H2OMOJOMod
     config.setModel(Utils.getMojoModel(mojo))
     config.setConvertUnknownCategoricalLevelsToNa(model.getConvertUnknownCategoricalLevelsToNa())
     config.setConvertInvalidNumbersToNa(model.getConvertInvalidNumbersToNa())
-    if (model.getWithContributions() && model.getWithDetailedPredictionCol() && canGenerateContributions(
-          config.getModel)) {
+    if (model.getWithContributions() && canGenerateContributions(config.getModel)) {
       config.setEnableContributions(true)
     }
-    if (model.getWithLeafNodeAssignments() && model.getWithDetailedPredictionCol() && canGenerateLeafNodeAssignments(
-          config.getModel)) {
+    if (model.getWithLeafNodeAssignments() && canGenerateLeafNodeAssignments(config.getModel)) {
       config.setEnableLeafAssignment(true)
     }
-    if (model.getWithStageResults() && model
-          .getWithDetailedPredictionCol() && canGenerateStageResults(config.getModel)) {
+    if (model.getWithStageResults() && canGenerateStageResults(config.getModel)) {
       config.setEnableStagedProbabilities(true)
     }
-    if (model.getWithDetailedPredictionCol() && model.getWithReconstructedData() && canGenerateReconstructedData(
-          config.getModel)) {
+    if (model.getWithReconstructedData() && canGenerateReconstructedData(config.getModel)) {
       config.setEnableGLRMReconstrut(true)
     }
     // always let H2O produce full output, filter later if required

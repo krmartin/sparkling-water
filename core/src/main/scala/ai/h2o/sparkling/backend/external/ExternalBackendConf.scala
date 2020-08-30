@@ -29,7 +29,7 @@ import scala.collection.JavaConverters._
 /**
   * External backend configuration
   */
-trait ExternalBackendConf extends SharedBackendConf with Logging {
+trait ExternalBackendConf extends SharedBackendConf with Logging with ExternalBackendConfExtensions {
   self: H2OConf =>
 
   import ExternalBackendConf._
@@ -118,9 +118,6 @@ trait ExternalBackendConf extends SharedBackendConf with Logging {
 
   def externalK8sServiceTimeout: Int =
     sparkConf.getInt(PROP_EXTERNAL_K8S_SERVICE_TIMEOUT._1, PROP_EXTERNAL_K8S_SERVICE_TIMEOUT._2)
-
-  private[backend] def isBackendVersionCheckDisabled =
-    sparkConf.getBoolean(PROP_EXTERNAL_DISABLE_VERSION_CHECK._1, PROP_EXTERNAL_DISABLE_VERSION_CHECK._2)
 
   /** Setters */
   /**
@@ -244,16 +241,6 @@ trait ExternalBackendConf extends SharedBackendConf with Logging {
   def setExternalK8sServiceTimeout(timeout: Int): H2OConf = {
     set(PROP_EXTERNAL_K8S_SERVICE_TIMEOUT._1, timeout.toString)
   }
-
-  def externalConfString: String =
-    s"""Sparkling Water configuration:
-       |  backend cluster mode : $backendClusterMode
-       |  cluster start mode   : $clusterStartMode
-       |  cloudName            : ${cloudName.getOrElse("Not set yet")}
-       |  cloud representative : ${h2oCluster.getOrElse("Not set, using cloud name only")}
-       |  base port            : $basePort
-       |  log level            : $logLevel
-       |  nthreads             : $nthreads""".stripMargin
 }
 
 object ExternalBackendConf {
@@ -286,7 +273,7 @@ object ExternalBackendConf {
     "spark.ext.h2o.external.extra.memory.percent",
     10,
     "setExternalExtraMemoryPercent(Integer)",
-    """This option is a percentage of ``spark.ext.h2o.external.memory`` and specifies memory
+    """This option is a percentage of external memory option and specifies memory
      |for internal JVM use outside of Java heap.""".stripMargin)
 
   val PROP_EXTERNAL_CLUSTER_REPRESENTATIVE: OptionOption = (
@@ -427,9 +414,9 @@ object ExternalBackendConf {
 
   val PROP_EXTERNAL_K8S_DOCKER_IMAGE: StringOption = (
     "spark.ext.h2o.external.k8s.docker.image",
-    s"h2oai/sparkling-water-external-backend:${BuildInfo.SWVersion}",
+    s"""See doc""",
     "setExternalK8sDockerImage(String)",
-    "Docker image containing Sparkling Water external H2O backend.")
+    s"Docker image containing Sparkling Water external H2O backend. Default value is h2oai/sparkling-water-external-backend:${BuildInfo.SWVersion}")
 
   val PROP_EXTERNAL_K8S_DOMAIN: StringOption = (
     "spark.ext.h2o.external.k8s.domain",

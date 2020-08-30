@@ -69,7 +69,8 @@ ext {
     project(':sparkling-water-utils'),
     project(':sparkling-water-scoring'),
     project(':sparkling-water-extensions'),
-    project(':sparkling-water-doc')
+    project(':sparkling-water-doc'),
+    project(':sparkling-water-booklet')
   ]
   pythonProjects = [project(':sparkling-water-py')]
   rProjects = [project(':sparkling-water-r'), project(':sparkling-water-r-cran')]
@@ -218,6 +219,7 @@ configure(subprojects) { project ->
   spotless {
     format 'misc', {
       target '**/*.sh', '**/*.gitignore', '**/*.properties', '**/*.R', '**/*.tf', '**/*.xml', "**/*.groovy"
+      targetExclude 'src-gen/**/*.R', 'build/src/R/**/*.R'
       trimTrailingWhitespace()
       endWithNewline()
     }

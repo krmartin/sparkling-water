@@ -19,12 +19,20 @@ from ai.h2o.sparkling.ml.params.H2OBaseMOJOParams import H2OBaseMOJOParams
 from ai.h2o.sparkling.ml.params.H2OTypeConverters import H2OTypeConverters
 from h2o.utils.typechecks import assert_is_type
 from pyspark.ml.param import *
+import warnings
 
 
 class H2OCommonParams(H2OBaseMOJOParams):
     ##
     # Param definitions
     ##
+    validationDataFrame = Param(
+        Params._dummy(),
+        "validationDataFrame",
+        "A data frame dedicated for a validation of the trained model. If the parameters is not set," +
+        "a validation frame created via the 'splitRatio' parameter.",
+        H2OTypeConverters.toNullableDataFrame())
+
     splitRatio = Param(
         Params._dummy(),
         "splitRatio",
@@ -41,6 +49,9 @@ class H2OCommonParams(H2OBaseMOJOParams):
     ##
     # Getters
     ##
+    def getValidationDataFrame(self):
+        return self.getOrDefault(self.validationDataFrame)
+
     def getSplitRatio(self):
         return self.getOrDefault(self.splitRatio)
 
@@ -50,6 +61,9 @@ class H2OCommonParams(H2OBaseMOJOParams):
     ##
     # Setters
     ##
+    def setValidationDataFrame(self, value):
+        return self._set(validationDataFrame=value)
+
     def setSplitRatio(self, value):
         return self._set(splitRatio=value)
 
@@ -74,7 +88,9 @@ class H2OCommonParams(H2OBaseMOJOParams):
         return self._set(detailedPredictionCol=value)
 
     def setWithDetailedPredictionCol(self, value):
-        return self._set(withDetailedPredictionCol=value)
+        warnings.warn("The method will be removed without a replacement in the version 3.34."
+                      "Detailed prediction columns is enabled by default.", DeprecationWarning)
+        return self
 
     def setFeaturesCols(self, value):
         return self._set(featuresCols=value)

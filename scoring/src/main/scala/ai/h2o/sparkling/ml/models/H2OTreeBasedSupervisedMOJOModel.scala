@@ -17,14 +17,15 @@
 
 package ai.h2o.sparkling.ml.models
 
-import ai.h2o.sparkling.ml.params.H2OTreeBasedSupervisedMOJOParams
+import ai.h2o.sparkling.ml.params.{H2OSupervisedMOJOParams, H2OTreeBasedMOJOParams}
 import hex.genmodel.MojoModel
 import hex.genmodel.algos.tree.SharedTreeMojoModel
 import hex.genmodel.algos.xgboost.XGBoostMojoModel
 
 class H2OTreeBasedSupervisedMOJOModel(override val uid: String)
   extends H2OSupervisedMOJOModel(uid)
-  with H2OTreeBasedSupervisedMOJOParams {
+  with H2OTreeBasedMOJOParams
+  with H2OSupervisedMOJOParams {
 
   override def setSpecificParams(mojoModel: MojoModel): H2OTreeBasedSupervisedMOJOModel = {
     super.setSpecificParams(mojoModel)

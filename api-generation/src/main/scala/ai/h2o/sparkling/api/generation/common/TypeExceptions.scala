@@ -22,6 +22,7 @@ trait TypeExceptionsBase {
     Map(
       "model_id" -> classOf[String],
       "response_column" -> classOf[String],
+      "validation_response_column" -> classOf[String],
       "fold_column" -> classOf[String],
       "weights_column" -> classOf[String],
       "offset_column" -> classOf[String])

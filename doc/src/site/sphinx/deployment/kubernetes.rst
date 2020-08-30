@@ -60,7 +60,7 @@ Dynamic allocation must be disabled in Spark.
 
         **To start an interactive shell in a client mode:**
 
-        1. Create Headless so Spark executors can reach the driver node
+        1. Create Headless service so Spark executors can reach the driver node
 
         .. code:: bash
 
@@ -95,7 +95,7 @@ Dynamic allocation must be disabled in Spark.
 
         4. Inside the shell, run:
 
-        .. code:: python
+        .. code:: scala
 
             import ai.h2o.sparkling._
             val hc = H2OContext.getOrCreate()
@@ -142,7 +142,7 @@ Dynamic allocation must be disabled in Spark.
 
         **To start an interactive shell in a client mode:**
 
-        1. Create Headless so Spark executors can reach the driver node:
+        1. Create Headless service so Spark executors can reach the driver node:
 
         .. code:: bash
 
@@ -173,7 +173,7 @@ Dynamic allocation must be disabled in Spark.
              --master "k8s://KUBERNETES_ENDPOINT" \
              --conf spark.driver.host=sparkling-water-app \
              --deploy-mode client \
-             --conf spark.executor.instances=3 \
+             --conf spark.executor.instances=3
 
         4. Inside the shell, run:
 
@@ -241,7 +241,7 @@ Dynamic allocation must be disabled in Spark.
         You can also submit RSparkling batch job. In that case, create a file called `batch.R` with the content
         from the code box above and run:
 
-        .. code:: r
+        .. code:: bash
 
             Rscript --default-packages=methods,utils batch.R
 
@@ -290,7 +290,7 @@ After we created the external H2O backend, we can connect to it from Sparkling W
 
         **To start an interactive shell in a client mode:**
 
-        1. Create Headless so Spark executors can reach the driver node
+        1. Create Headless service so Spark executors can reach the driver node
 
         .. code:: bash
 
@@ -330,7 +330,7 @@ After we created the external H2O backend, we can connect to it from Sparkling W
 
         4. Inside the shell, run:
 
-        .. code:: python
+        .. code:: scala
 
             import ai.h2o.sparkling._
             val hc = H2OContext.getOrCreate()
@@ -387,7 +387,7 @@ After we created the external H2O backend, we can connect to it from Sparkling W
 
         **To start an interactive shell in a client mode:**
 
-        1. Create Headless so Spark executors can reach the driver node:
+        1. Create Headless service so Spark executors can reach the driver node:
 
         .. code:: bash
 
@@ -423,7 +423,7 @@ After we created the external H2O backend, we can connect to it from Sparkling W
              --conf spark.ext.h2o.external.memory=2G \
              --conf spark.ext.h2o.cloud.representative=h2o-service.default.svc.cluster.local:54321 \
              --conf spark.ext.h2o.cloud.name=root \
-             --conf spark.executor.instances=3 \
+             --conf spark.executor.instances=3
 
         4. Inside the shell, run:
 
@@ -501,7 +501,7 @@ After we created the external H2O backend, we can connect to it from Sparkling W
         You can also submit RSparkling batch job. In that case, create a file called `batch.R` with the content
         from the code box above and run:
 
-        .. code:: r
+        .. code:: bash
 
             Rscript --default-packages=methods,utils batch.R
 
@@ -542,7 +542,7 @@ is specified using the ``spark.ext.h2o.external.k8s.docker.image`` option.
 
         **To start an interactive shell in a client mode:**
 
-        1. Create Headless so Spark executors can reach the driver node
+        1. Create Headless service so Spark executors can reach the driver node
 
         .. code:: bash
 
@@ -583,7 +583,7 @@ is specified using the ``spark.ext.h2o.external.k8s.docker.image`` option.
 
         4. Inside the shell, run:
 
-        .. code:: python
+        .. code:: scala
 
             import ai.h2o.sparkling._
             val hc = H2OContext.getOrCreate()
@@ -642,7 +642,7 @@ is specified using the ``spark.ext.h2o.external.k8s.docker.image`` option.
 
         **To start an interactive shell in a client mode:**
 
-        1. Create Headless so Spark executors can reach the driver node:
+        1. Create Headless service so Spark executors can reach the driver node:
 
         .. code:: bash
 
@@ -679,7 +679,7 @@ is specified using the ``spark.ext.h2o.external.k8s.docker.image`` option.
              --conf spark.ext.h2o.external.cluster.size=2 \
              --conf spark.ext.h2o.external.memory=2G \
              --conf spark.ext.h2o.external.k8s.docker.image=h2oai/sparkling-water-python:SUBST_SW_VERSION \
-             --conf spark.executor.instances=3 \
+             --conf spark.executor.instances=3
 
         4. Inside the shell, run:
 
@@ -759,7 +759,7 @@ is specified using the ``spark.ext.h2o.external.k8s.docker.image`` option.
         You can also submit RSparkling batch job. In that case, create a file called `batch.R` with the content
         from the code box above and run:
 
-        .. code:: r
+        .. code:: bash
 
             Rscript --default-packages=methods,utils batch.R
 
