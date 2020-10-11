@@ -16,25 +16,15 @@
 #
 
 from ai.h2o.sparkling.ml.H2OStageBase import H2OStageBase
-from ai.h2o.sparkling.ml.models import H2OMOJOModel
-from ai.h2o.sparkling.ml.models import H2OSupervisedMOJOModel
-from ai.h2o.sparkling.ml.models import H2OTreeBasedSupervisedMOJOModel
-from ai.h2o.sparkling.ml.models import H2OTreeBasedUnsupervisedMOJOModel
-from ai.h2o.sparkling.ml.models import H2OUnsupervisedMOJOModel
+from ai.h2o.sparkling.ml.models.H2OBinaryModel import H2OBinaryModel
+from ai.h2o.sparkling.ml.models.H2OMOJOModel import H2OMOJOModelFactory
 from pyspark.ml.wrapper import JavaEstimator
 
 
 class H2OAlgorithm(H2OStageBase, JavaEstimator):
 
+    def getBinaryModel(self):
+        return H2OBinaryModel(self._java_obj.getBinaryModel())
+
     def _create_model(self, javaModel):
-        className = javaModel.getClass().getSimpleName()
-        if className == "H2OTreeBasedSupervisedMOJOModel":
-            return H2OTreeBasedSupervisedMOJOModel(javaModel)
-        elif className == "H2OTreeBasedUnsupervisedMOJOModel":
-            return H2OTreeBasedUnsupervisedMOJOModel(javaModel)
-        elif className == "H2OSupervisedMOJOModel":
-            return H2OSupervisedMOJOModel(javaModel)
-        elif className == "H2OUnsupervisedMOJOModel":
-            return H2OUnsupervisedMOJOModel(javaModel)
-        else:
-            return H2OMOJOModel(javaModel)
+        return H2OMOJOModelFactory.createSpecificMOJOModel(javaModel)

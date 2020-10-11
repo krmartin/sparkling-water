@@ -15,12 +15,8 @@
 # limitations under the License.
 #
 
-from ai.h2o.sparkling.ml.H2OStageBase import H2OStageBase
-from ai.h2o.sparkling.ml.models import H2OTreeBasedSupervisedMOJOModel
-from pyspark.ml.wrapper import JavaEstimator
+from ai.h2o.sparkling.ml.algos.H2OSupervisedAlgorithm import H2OSupervisedAlgorithm
 
 
-class H2OTreeBasedSupervisedAlgorithm(H2OStageBase, JavaEstimator):
-
-    def _create_model(self, java_model):
-        return H2OTreeBasedSupervisedMOJOModel(java_model)
+class H2OTreeBasedSupervisedAlgorithm(H2OSupervisedAlgorithm):
+    pass

@@ -26,13 +26,15 @@ object ParametersTemplate
 
   def apply(parameterSubstitutionContext: ParameterSubstitutionContext): String = {
     val h2oParameterFullName = parameterSubstitutionContext.h2oParameterClass.getCanonicalName
+    val explicitFields = parameterSubstitutionContext.explicitFields
+    val deprecatedFields = parameterSubstitutionContext.deprecatedFields
 
     val parameters = resolveParameters(parameterSubstitutionContext)
     val imports = Seq("pyspark.ml.param.*", "ai.h2o.sparkling.ml.params.H2OTypeConverters.H2OTypeConverters") ++
-      parameterSubstitutionContext.explicitFields.map { ef =>
-        s"ai.h2o.sparkling.ml.params.${ef.implementation}.${ef.implementation}"
-      }
-    val parents = parameterSubstitutionContext.explicitFields.map(_.implementation) ++ Seq("Params")
+      explicitFields.map(ef => s"ai.h2o.sparkling.ml.params.${ef.implementation}.${ef.implementation}") ++
+      deprecatedFields.map(df => s"ai.h2o.sparkling.ml.params.${df.implementation}.${df.implementation}")
+
+    val parents = explicitFields.map(_.implementation) ++ deprecatedFields.map(_.implementation) ++ Seq("Params")
 
     val entitySubstitutionContext = EntitySubstitutionContext(
       parameterSubstitutionContext.namespace,
@@ -63,13 +65,14 @@ object ParametersTemplate
   }
 
   private def generateParameterDefinitions(parameters: Seq[Parameter]): String = {
+    val tripleQuotes = "\"\"\""
     parameters
       .map { parameter =>
         val converter = resolveConverter(parameter.dataType, parameter.defaultValue)
         s"""    ${parameter.swName} = Param(
            |        Params._dummy(),
            |        "${parameter.swName}",
-           |        "${parameter.comment}",
+           |        $tripleQuotes${parameter.comment}$tripleQuotes,
            |        $converter)""".stripMargin
       }
       .mkString("\n\n")
@@ -98,6 +101,10 @@ object ParametersTemplate
       "EnumString"
     } else if (dataType.isArray) {
       s"List${resolveConverterType(dataType.getComponentType, defaultValue)}"
+    } else if (dataType.getSimpleName == "StringPairV3") {
+      "PairString"
+    } else if (TypeExceptions.stringTypes.contains(dataType.getSimpleName)) {
+      "String"
     } else {
       dataType.getSimpleName.capitalize match {
         case "Double" => "Float"

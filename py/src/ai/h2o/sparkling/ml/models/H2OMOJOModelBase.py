@@ -16,13 +16,15 @@
 #
 
 from pyspark.ml.param import *
-from pyspark.ml.util import JavaMLWritable, JavaMLReadable
+from pyspark.ml.util import JavaMLWritable
 from pyspark.ml.wrapper import JavaModel
+from ai.h2o.sparkling.ml.util.H2OJavaMLReadable import H2OJavaMLReadable
+from ai.h2o.sparkling.ml.params.H2OTypeConverters import H2OTypeConverters
 
 import warnings
 
 
-class H2OMOJOModelBase(JavaModel, JavaMLWritable, JavaMLReadable):
+class H2OMOJOModelBase(JavaModel, JavaMLWritable, H2OJavaMLReadable):
 
     # Overriding the method to avoid changes on the companion Java object
     def _transfer_params_to_java(self):
@@ -44,6 +46,9 @@ class H2OMOJOModelBase(JavaModel, JavaMLWritable, JavaMLReadable):
 
     def getFeaturesCols(self):
         return list(self._java_obj.getFeaturesCols())
+
+    def getFeatureTypes(self):
+        return H2OTypeConverters.scalaMapStringStringToDictStringAny(self._java_obj.getFeatureTypes())
 
     def getConvertUnknownCategoricalLevelsToNa(self):
         return self._java_obj.getConvertUnknownCategoricalLevelsToNa()

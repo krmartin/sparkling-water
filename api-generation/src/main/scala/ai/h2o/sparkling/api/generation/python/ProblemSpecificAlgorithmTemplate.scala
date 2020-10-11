@@ -37,6 +37,7 @@ object ProblemSpecificAlgorithmTemplate
     val parents = Seq(parentEntityName)
 
     val imports = Seq(
+      "warnings.warn",
       "pyspark.keyword_only",
       "ai.h2o.sparkling.Initializer",
       "ai.h2o.sparkling.ml.Utils.Utils",
@@ -44,6 +45,12 @@ object ProblemSpecificAlgorithmTemplate
 
     val entitySubstitutionContext = EntitySubstitutionContext(namespace, entityName, parents, imports)
 
-    generateAlgorithmClass(entityName, namespace, parameters, entitySubstitutionContext, commonSubstitutionContext)
+    generateAlgorithmClass(
+      entityName,
+      parentEntityName,
+      namespace,
+      parameters,
+      entitySubstitutionContext,
+      commonSubstitutionContext)
   }
 }

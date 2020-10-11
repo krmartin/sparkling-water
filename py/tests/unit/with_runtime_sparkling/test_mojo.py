@@ -18,6 +18,7 @@ import pytest
 import tempfile
 import shutil
 import unit_test_utils
+import os
 
 from pyspark.mllib.linalg import *
 from pyspark.sql.types import *
@@ -25,6 +26,7 @@ from pyspark.sql.functions import array, struct
 from pysparkling.ml import *
 from h2o.estimators import H2OGradientBoostingEstimator
 from pyspark.ml.feature import VectorAssembler
+from ai.h2o.sparkling.ml.models.H2OMOJOModel import H2OMOJOModel
 
 
 @pytest.fixture(scope="module")
@@ -50,7 +52,7 @@ def testTrainingParams(gbmModel):
     assert params["seed"] == "42"
     assert params["distribution"] == "bernoulli"
     assert params["ntrees"] == "2"
-    assert len(params) == 44
+    assert len(params) == 43
 
 
 def testModelCategory(gbmModel):
@@ -62,6 +64,20 @@ def testTrainingMetrics(gbmModel):
     metrics = gbmModel.getTrainingMetrics()
     assert metrics is not None
     assert len(metrics) is 6
+
+
+def testFeatureTypes(gbmModel):
+    types = gbmModel.getFeatureTypes()
+    assert types["DPROS"] == "Numeric"
+    assert types["GLEASON"] == "Numeric"
+    assert types["DCAPS"] == "Numeric"
+    assert types["VOL"] == "Numeric"
+    assert types["AGE"] == "Numeric"
+    assert types["PSA"] == "Numeric"
+    assert types["capsule"] == "Enum"
+    assert types["RACE"] == "Numeric"
+    assert types["ID"] == "Numeric"
+    assert len(types) == 9
 
 
 def getCurrentMetrics():
@@ -141,3 +157,14 @@ def testMojoTrainedWithH2OAPISupportsStructs(hc, prostateDatasetWithDoubles):
             prostateDatasetWithDoubles.VOL).alias("a"),
         prostateDatasetWithDoubles.GLEASON)
     compareH2OPythonGbmOnTwoDatasets(hc, prostateDatasetWithDoubles, arrayDataset)
+
+
+def testMojoModelCouldBeSavedAndLoaded(gbmModel, prostateDataset):
+    path = "file://" + os.path.abspath("build/testMojoModelCouldBeSavedAndLoaded")
+    gbmModel.write().overwrite().save(path)
+    loadedModel = H2OMOJOModel.load(path)
+
+    expected = gbmModel.transform(prostateDataset).drop("detailed_prediction")
+    result = loadedModel.transform(prostateDataset).drop("detailed_prediction")
+
+    unit_test_utils.assert_data_frames_are_identical(expected, result)

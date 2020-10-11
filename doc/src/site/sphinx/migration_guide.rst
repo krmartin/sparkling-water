@@ -36,7 +36,14 @@ From 3.32 to 3.34
 - The methods ``getWithDetailedPredictionCol`` and ``setWithDetailedPredictionCol`` on all SW Algorithms and
   MOJO models were removed without replacement.
 
-- The ``withDetailedPredictionCol`` field on ``H2OMOJOSettings`` was removed without replacement.
+- The ``withDetailedPredictionCol`` field on ``H2OMOJOSettings`` was removed without a replacement.
+
+- The ``weightCol`` parameter on ``H2OKmeans`` was removed without a replacement.
+
+- The ``getTrainingParams`` method on ``H2OMOJOModel`` and inherited classes has been removed in Python and Scala API.
+  Use a specific getter method for a given training parameter.
+
+- The ``distribution`` parameter on ``H2OGLM`` was removed without a replacement.
 
 From 3.30.1 to 3.32
 -------------------

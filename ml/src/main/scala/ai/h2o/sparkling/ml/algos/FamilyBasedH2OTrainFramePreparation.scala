@@ -15,12 +15,22 @@
  * limitations under the License.
  */
 
-package ai.h2o.sparkling.api.generation.common
+package ai.h2o.sparkling.ml.algos
 
-import ai.h2o.sparkling.ml.utils.H2OAutoMLSortMetric
+import ai.h2o.sparkling.{H2OColumnType, H2OFrame}
 
-object AutoMLTypeExceptions extends TypeExceptionsBase {
-  override def all(): Map[String, Class[_]] = {
-    super.all() ++ Map("sort_metric" -> classOf[H2OAutoMLSortMetric])
+trait FamilyBasedH2OTrainFramePreparation extends H2OTrainFramePreparation {
+
+  def getFamily(): String
+
+  def getLabelCol(): String
+
+  override protected def prepareH2OTrainFrameForFitting(trainFrame: H2OFrame): Unit = {
+    super.prepareH2OTrainFrameForFitting(trainFrame)
+    if (ProblemType.familyToProblemType(getFamily()) == ProblemType.Classification) {
+      if (trainFrame.columns.find(_.name == getLabelCol()).get.dataType != H2OColumnType.`enum`) {
+        trainFrame.convertColumnsToCategorical(Array(getLabelCol()))
+      }
+    }
   }
 }

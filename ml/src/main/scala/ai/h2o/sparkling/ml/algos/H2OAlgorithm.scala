@@ -38,33 +38,22 @@ abstract class H2OAlgorithm[P <: Model.Parameters: ClassTag]
   extends Estimator[H2OMOJOModel]
   with H2OCommonParams
   with H2OAlgoCommonUtils
+  with H2OTrainFramePreparation
   with DefaultParamsWritable
   with RestCommunication {
 
-  def getFoldCol(): String
-
-  def getWeightCol(): String
-
-  def getModelId(): String
-
-  def setFoldCol(value: String): this.type
-
-  def setWeightCol(value: String): this.type
-
-  def setModelId(value: String): this.type
+  protected def getModelId(): String
 
   // Class tag for parameters to get runtime class
   protected def paramTag: ClassTag[P]
 
   protected var parameters: P = paramTag.runtimeClass.newInstance().asInstanceOf[P]
 
-  protected def prepareH2OTrainFrameForFitting(frame: H2OFrame): Unit = {}
-
   override def fit(dataset: Dataset[_]): H2OMOJOModel = {
     val (train, valid) = prepareDatasetForFitting(dataset)
     prepareH2OTrainFrameForFitting(train)
     val params = getH2OAlgorithmParams(train) ++
-      Map("training_frame" -> train.frameId, "model_id" -> convertModelIdToKey()) ++
+      Map("training_frame" -> train.frameId, "model_id" -> convertModelIdToKey(getModelId())) ++
       valid
         .map { fr =>
           Map("validation_frame" -> fr.frameId)
@@ -78,35 +67,8 @@ abstract class H2OAlgorithm[P <: Model.Parameters: ClassTag]
       .toMOJOModel(Identifiable.randomUID(parameters.algoName()), H2OMOJOSettings.createFromModelParams(this))
   }
 
-  private def convertModelIdToKey(): String = {
-    val key = getModelId()
-    if (H2OModel.modelExists(key)) {
-      val replacement = findAlternativeKey(key)
-      logWarning(
-        s"Model id '$key' is already used by a different H2O model. Replacing the original id with '$replacement' ...")
-      replacement
-    } else {
-      key
-    }
-  }
-
-  private def findAlternativeKey(modelId: String): String = {
-    var suffixNumber = 0
-    var replacement: String = null
-    do {
-      suffixNumber = suffixNumber + 1
-      replacement = s"${modelId}_$suffixNumber"
-    } while (H2OModel.modelExists(replacement))
-    replacement
-  }
-
   @DeveloperApi
-  override def transformSchema(schema: StructType): StructType = {
-    require(
-      getWeightCol() == null || getWeightCol() != getFoldCol(),
-      "Specified weight column cannot be the same as the fold column!")
-    schema
-  }
+  override def transformSchema(schema: StructType): StructType = schema
 
   override def copy(extra: ParamMap): this.type = defaultCopy(extra)
 }
